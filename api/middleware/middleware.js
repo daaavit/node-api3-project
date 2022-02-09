@@ -1,3 +1,5 @@
+const User = require('../users/users-model')
+
 function logger(req, res, next) {
   // DO YOUR MAGIC
   console.log("logger middleware")
@@ -7,9 +9,23 @@ function logger(req, res, next) {
   console.log(`${timestamp} ${method} ${url}`)
 }
 
-function validateUserId(req, res, next) {
-  // DO YOUR MAGIC
-  console.log("validateUser middleware")
+async function validateUserId(req, res, next) {
+  try {
+    const users = await User.getById(req.params.id)
+    if (!user) {
+      res.status(404).json({
+        message: "no such user"
+      })
+    } else {
+      req.user = user
+      next()
+    }
+  }
+  catch (err) {
+    res.status(404).json({
+    message: "problem finding user"
+    })
+  }
 }
 
 function validateUser(req, res, next) {
@@ -26,8 +42,8 @@ function validatePost(req, res, next) {
 
 
 module.exports = {
-    logger,
-    validateUserId,
-    validateUser,
-    validatePost
+  logger,
+  validateUserId,
+  validateUser,
+  validatePost
 }
